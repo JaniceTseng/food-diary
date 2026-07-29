@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="飲食日記">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FCF4E6">
+<title>飲食日記</title>
+<style>
+:root{
+  --bg:#FCF4E6;
+  --card:#FFFFFF;
+  --line:#F0E1C8;
+  --ink:#33291C;
+  --dim:#9C8B70;
+  --green:#C0761B;
+  --green-l:#FBEBD2;
+  --kcal:#D4622B;
+  --p:#2F8A6E;
+  --c:#4A73B5;
+  --f:#B8862F;
+  --fi:#8A64B0;
+  --water:#3D96C2;
+  --warn-bg:#FDF0DA;
+  --warn-line:#EBCF9C;
+  --warn-ink:#8C5C15;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Helvetica Neue",sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  padding:0 0 40px;
+}
+.wrap{max-width:540px;margin:0 auto;padding:0 14px}
+
+/* header */
+header{padding:calc(env(safe-area-inset-top) + 16px) 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-size:23px;font-weight:700;margin:0;letter-spacing:.01em;flex:1;min-width:0}
+.pill{
+  background:var(--card);border:1px solid var(--line);border-radius:99px;
+  padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--ink);
+  white-space:nowrap;font-variant-numeric:tabular-nums;
+}
+.pill:active{background:var(--line)}
+.pill.on{background:var(--green-l);border-color:#EBCF9C;color:var(--green);font-weight:600}
+.dnav{display:flex;align-items:center;gap:4px}
+.arw{
+  background:var(--card);border:1px solid var(--line);border-radius:9px;
+  width:30px;height:32px;font-size:17px;line-height:1;color:var(--green);
+  cursor:pointer;font-family:inherit;padding:0;
+}
+.arw:active{background:var(--line)}
+.arw:disabled{color:#DECBAC;cursor:default}
+.pill.dp{min-width:96px;text-align:center}
+.pill.dp.past{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn-ink);font-weight:600}
+.pill .ck{margin-right:3px}
+
+/* tabs */
+nav{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+nav button{
+  flex:1;background:none;border:none;padding:12px 2px;font-size:13.5px;font-family:inherit;
+  color:var(--dim);cursor:pointer;font-weight:500;border-right:1px solid var(--line);
+}
+nav button:last-child{border-right:none}
+nav button.on{background:var(--green);color:#fff;font-weight:600}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
+.card h3{font-size:13px;color:var(--dim);margin:0 0 12px;font-weight:600;letter-spacing:.04em}
+
+.alert{
+  background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);
+  border-radius:12px;padding:12px 14px;font-size:13.5px;line-height:1.6;margin-bottom:12px;display:none;
+}
+.alert b{font-weight:700}
+
+/* macro grid */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mbox{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:13px 14px}
+.mbox .lbl{font-size:12.5px;color:var(--dim);margin-bottom:5px}
+.mbox .val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
+.mbox .val small{font-size:12.5px;color:var(--dim);font-weight:400;margin-left:1px}
+.mbox .val .u{font-size:14px;font-weight:600}
+.track{height:5px;background:#F4E7D2;border-radius:99px;margin-top:9px;overflow:hidden}
+.track span{display:block;height:100%;border-radius:99px;width:0;transition:width .35s ease}
+.over{background:var(--kcal) !important}
+
+/* balance */
+.bal{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;gap:6px}
+.bal .n{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.bal .k{font-size:12px;color:var(--dim);margin-top:3px}
+.balfoot{text-align:center;border-top:1px solid var(--line);margin-top:13px;padding-top:12px;font-size:15px}
+.balfoot b{font-weight:700;font-variant-numeric:tabular-nums}
+
+/* water */
+.wrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.wrow .wlabel{font-size:14px;font-weight:600;margin-right:2px}
+.wbtn{background:var(--card);border:1px solid #BEDDEB;color:var(--water);border-radius:99px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600}
+.wbtn:active{background:#EAF6FB}
+.wbtn.rs{border-color:var(--line);color:var(--dim);font-weight:500}
+.wnum{margin-left:auto;font-size:14px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--water)}
+
+/* meal type chips */
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 15px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--ink)}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.chip.ex.on{background:var(--green);border-color:var(--green)}
+
+/* input */
+.inrow{display:flex;gap:8px}
+.inrow input{
+  flex:1;min-width:0;background:#FEFAF2;border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);
+}
+.inrow input::placeholder{color:#BFAE92}
+.inrow input:focus{outline:none;border-color:var(--green);background:#fff}
+.inrow button{
+  background:var(--green);color:#fff;border:none;border-radius:10px;padding:0 18px;
+  font-size:14.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;
+}
+.inrow button:active{opacity:.85}
+textarea#mIn{
+  width:100%;background:#FEFAF2;border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);
+  line-height:1.6;resize:vertical;min-height:66px;
+}
+textarea#mIn::placeholder{color:#BFAE92}
+textarea#mIn:focus{outline:none;border-color:var(--green);background:#fff}
+.hint{font-size:11.5px;color:#AD9C80;margin-top:9px;line-height:1.6}
+.hint code{background:#FBF1DF;padding:2px 6px;border-radius:5px;font-size:10.5px;color:#A05F12;word-break:break-all}
+.err{color:var(--kcal);font-size:12.5px;margin-top:8px;display:none}
+
+/* entries */
+.entry{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px;background:var(--card);display:flex;gap:11px;align-items:flex-start}
+.entry:last-child{margin-bottom:0}
+.ebody{flex:1;min-width:0}
+.emeta{font-size:11.5px;color:var(--dim);margin-bottom:4px}
+.ename{font-size:15px;font-weight:600;line-height:1.4;word-break:break-word}
+.enums{display:flex;gap:11px;margin-top:6px;flex-wrap:wrap}
+.enums div{text-align:center;line-height:1.25}
+.enums b{display:block;font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums}
+.enums span{font-size:10px;color:var(--dim)}
+.ex{background:none;border:none;color:#D2BE9E;font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+.ex:active{color:var(--kcal)}
+.empty{color:#B5A488;font-size:13.5px;text-align:center;padding:22px 8px;line-height:1.75}
+
+/* exercise */
+.exin{display:grid;grid-template-columns:1fr 74px 74px auto;gap:7px}
+.exin input{background:#FEFAF2;border:1px solid var(--line);border-radius:10px;padding:11px 10px;font-size:14.5px;font-family:inherit;width:100%;min-width:0;color:var(--ink)}
+.exin input:focus{outline:none;border-color:var(--green);background:#fff}
+.exin button{background:var(--green);color:#fff;border:none;border-radius:10px;padding:0 14px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.exkcal{color:var(--p);font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* calendar */
+.cnav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.cnav b{font-size:16px;font-weight:700}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;text-align:center}
+.cgrid .wd{font-size:11.5px;color:var(--dim);padding:5px 0}
+.cd{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;font-size:14px;cursor:pointer;position:relative;font-variant-numeric:tabular-nums}
+.cd.blank{cursor:default}
+.cd.sel{background:var(--green);color:#fff;font-weight:700}
+.cd .mk{width:4px;height:4px;border-radius:99px;background:var(--green);margin-top:2px}
+.cd.sel .mk{background:#fff}
+.cd.no .mk{opacity:0}
+
+/* summary table */
+.stab{width:100%;font-size:13.5px}
+.stab tr{border-bottom:1px solid var(--line)}
+.stab tr:last-child{border-bottom:none}
+.stab td{padding:9px 0}
+.stab td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.stab .lb{color:var(--dim);font-weight:400}
+
+/* trend */
+.chart{display:flex;align-items:flex-end;gap:5px;height:112px;margin-bottom:6px}
+.ccol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}
+.cbar{width:100%;border-radius:5px 5px 3px 3px;background:#EFE0C6;min-height:3px;transition:height .3s}
+.cbar.has{background:var(--green)}
+.cbar.today{outline:1.5px solid var(--ink);outline-offset:1.5px}
+.cnum{font-size:9.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+.cday{font-size:9.5px;color:#AD9C80}
+.cavg{font-size:12.5px;color:var(--dim);text-align:center;padding-top:11px;border-top:1px solid var(--line);line-height:1.8}
+.cavg b{color:var(--ink);font-weight:700}
+
+/* body */
+.brow3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.brow3 input{background:#FEFAF2;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font-size:14.5px;width:100%;font-family:inherit;color:var(--ink)}
+.brow3 input:focus{outline:none;border-color:var(--green);background:#fff}
+.brow3 button{background:var(--green);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:600;font-size:14px;cursor:pointer;font-family:inherit}
+.blist{margin-top:12px}
+.bitem{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.bitem:last-child{border-bottom:none}
+.bitem .bd{color:var(--dim);font-size:12.5px;font-variant-numeric:tabular-nums}
+.bitem .bv{font-variant-numeric:tabular-nums}
+.bitem .bv em{font-style:normal;color:var(--dim);font-size:11.5px;margin-left:2px}
+.dl{font-size:11.5px;margin-left:6px;font-variant-numeric:tabular-nums}
+.dn{color:var(--p)}.up{color:var(--kcal)}
+
+/* report */
+.bigbtn{width:100%;background:var(--green);color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.bigbtn:active{opacity:.85}
+.outbox{display:none;margin-top:12px;background:#FEFAF2;border:1px solid var(--line);border-radius:11px;padding:13px;font-size:11.5px;line-height:1.8;white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#54463A;overflow-x:auto}
+.done{font-size:12.5px;color:var(--p);margin-top:9px;display:none;text-align:center;font-weight:600}
+.note{font-size:12.5px;color:var(--dim);line-height:1.75;margin-top:12px}
+
+.pane{display:none}
+.pane.on{display:block}
+footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-height:1.7}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>飲食日記</h1>
+  <div class="dnav">
+    <button class="arw" id="dPrev" aria-label="前一天">&lsaquo;</button>
+    <button class="pill dp" id="datePill"></button>
+    <button class="arw" id="dNext" aria-label="後一天">&rsaquo;</button>
+  </div>
+  <button class="pill" id="setBtn">設定</button>
+</header>
+
+<nav>
+  <button data-t="today" class="on">今日</button>
+  <button data-t="ex">運動</button>
+  <button data-t="cal">日曆</button>
+  <button data-t="prog">進度</button>
+  <button data-t="rep">週報</button>
+</nav>
+
+<!-- TODAY -->
+<div class="pane on" id="p-today">
+  <div class="alert" id="alert"></div>
+
+  <div class="mgrid">
+    <div class="mbox">
+      <div class="lbl">熱量</div>
+      <div class="val"><span id="vK">0</span><small> / <span id="gK">1350</span></small></div>
+      <div class="track"><span id="tK" style="background:var(--kcal)"></span></div>
+    </div>
+    <div class="mbox">
+      <div class="lbl">蛋白質</div>
+      <div class="val"><span id="vP">0</span><span class="u">g</span><small>/<span id="gP">88</span>g</small></div>
+      <div class="track"><span id="tP" style="background:var(--p)"></span></div>
+    </div>
+    <div class="mbox">
+      <div class="lbl">碳水</div>
+      <div class="val"><span id="vC">0</span><span class="u">g</span><small>/<span id="gC">120</span>g</small></div>
+      <div class="track"><span id="tC" style="background:var(--c)"></span></div>
+    </div>
+    <div class="mbox">
+      <div class="lbl">脂肪</div>
+      <div class="val"><span id="vF">0</span><span class="u">g</span><small>/<span id="gF">45</span>g</small></div>
+      <div class="track"><span id="tF" style="background:var(--f)"></span></div>
+    </div>
+    <div class="mbox" style="grid-column:1 / -1">
+      <div class="lbl">膳食纖維</div>
+      <div class="val"><span id="vFi">0</span><span class="u">g</span><small>/<span id="gFi">28</span>g</small></div>
+      <div class="track"><span id="tFi" style="background:var(--fi)"></span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>今日熱量平衡</h3>
+    <div class="bal">
+      <div><div class="n" style="color:var(--kcal)" id="bIn">0</div><div class="k">飲食攝取</div></div>
+      <div><div class="n" style="color:var(--p)" id="bOut">0</div><div class="k">運動消耗</div></div>
+      <div><div class="n" id="bNet">0</div><div class="k">淨攝取</div></div>
+    </div>
+    <div class="balfoot" id="balFoot"></div>
+  </div>
+
+  <div class="card">
+    <div class="wrow">
+      <span class="wlabel">喝水</span>
+      <button class="wbtn" data-w="100">+100</button>
+      <button class="wbtn" data-w="300">+300</button>
+      <button class="wbtn" data-w="500">+500</button>
+      <button class="wbtn rs" data-w="0">重設</button>
+      <span class="wnum" id="wNum">0/2000</span>
+    </div>
+    <div class="track" style="margin-top:11px"><span id="tW" style="background:var(--water)"></span></div>
+  </div>
+
+  <div class="card">
+    <h3>記錄一餐</h3>
+    <div class="chips" id="mealChips"></div>
+    <textarea id="mIn" rows="2" placeholder="鍋燒烏龍麵 | 520 kcal | P15 C90 F10 Fi4"></textarea>
+    <div class="inrow" style="margin-top:8px">
+      <button id="mAdd" style="flex:1">記錄</button>
+    </div>
+    <div class="err" id="mErr"></div>
+    <div class="hint">一行一餐，可以整段貼上多行一次記錄。<br>格式：<code>餐次 食物 | ○ kcal | P○ C○ F○ Fi○</code></div>
+  </div>
+
+  <div class="card">
+    <h3>今日紀錄</h3>
+    <div id="mList"></div>
+  </div>
+</div>
+
+<!-- EXERCISE -->
+<div class="pane" id="p-ex">
+  <div class="card">
+    <h3>記錄運動</h3>
+    <div class="chips" id="exChips"></div>
+    <div class="exin">
+      <input id="exName" type="text" placeholder="項目說明（可空白）" autocomplete="off">
+      <input id="exMin" type="number" inputmode="numeric" placeholder="分鐘">
+      <input id="exKcal" type="number" inputmode="numeric" placeholder="大卡">
+      <button id="exAdd">記錄</button>
+    </div>
+    <div class="hint">大卡沒填的話，會依項目與分鐘估算。</div>
+  </div>
+  <div class="card">
+    <h3>今日運動</h3>
+    <div id="exList"></div>
+  </div>
+</div>
+
+<!-- CALENDAR -->
+<div class="pane" id="p-cal">
+  <div class="card">
+    <div class="cnav">
+      <button class="pill" id="mPrev">‹ 上月</button>
+      <b id="mLabel"></b>
+      <button class="pill" id="mNext">下月 ›</button>
+    </div>
+    <div class="cgrid" id="cGrid"></div>
+  </div>
+  <div class="card">
+    <h3 id="calDayLabel">當日紀錄</h3>
+    <div id="calList"></div>
+  </div>
+  <div class="card">
+    <h3>當日總覽</h3>
+    <table class="stab" id="calSum"></table>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="pane" id="p-prog">
+  <div class="card">
+    <h3>近 7 日淨攝取</h3>
+    <div class="chart" id="chart"></div>
+    <div class="cavg" id="cAvg"></div>
+  </div>
+  <div class="card">
+    <h3>體重體脂</h3>
+    <div class="brow3">
+      <input id="wgt" type="number" step="0.1" inputmode="decimal" placeholder="體重 kg">
+      <input id="bfp" type="number" step="0.1" inputmode="decimal" placeholder="體脂 %">
+      <button id="bAdd">記錄</button>
+    </div>
+    <div class="blist" id="bList"></div>
+  </div>
+  <div class="card">
+    <h3>目標</h3>
+    <table class="stab" id="goalTab"></table>
+    <div class="note">目標是體脂率下降、骨骼肌上升，不是體重數字變小。體重可能整個過程都不太動。</div>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div class="pane" id="p-rep">
+  <div class="card">
+    <h3>近 7 日摘要</h3>
+    <button class="bigbtn" id="repBtn">產生並複製</button>
+    <div class="outbox" id="repOut"></div>
+    <div class="done" id="repDone">已複製，貼給 Claude 就好</div>
+    <div class="note">這頁不自動生成建議——數據貼給 Claude 做分析比較準。</div>
+  </div>
+  <div class="card">
+    <h3>備份與還原</h3>
+    <button class="bigbtn" id="expBtn">下載備份檔</button>
+    <div class="inrow" style="margin-top:9px">
+      <button class="bigbtn" id="expCopy" style="background:#FEFAF2;color:var(--green);border:1px solid var(--line)">複製成文字</button>
+      <button class="bigbtn" id="impBtn" style="background:#FEFAF2;color:var(--green);border:1px solid var(--line)">還原備份</button>
+    </div>
+    <div class="done" id="expDone">已複製</div>
+    <div class="note">備份檔是一個 .json，存到 iCloud／Google Drive 或用 LINE 傳給自己都行。換手機或清瀏覽器資料後，用「還原備份」貼回來。<br>建議每週做一次，順手在按週報的時候一起。</div>
+  </div>
+
+  <div class="card">
+    <h3>清除資料</h3>
+    <button class="bigbtn" id="wipeBtn" style="background:#FEFAF2;color:var(--kcal);border:1px solid var(--line)">全部刪除</button>
+    <div class="note">會刪掉所有飲食、運動、體重紀錄，無法復原。</div>
+  </div>
+</div>
+
+<footer>資料存在這支手機的瀏覽器裡<br>清除瀏覽資料會一併刪除</footer>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var KEY='fdiary.v1';
+var GOALS={kcal:1350,p:88,c:120,f:45,fi:28,water:2000};
+var BMR=1076;
+var MEALS=['早餐','午餐','晚餐','點心','飲料','其他'];
+var EXS=[
+  {n:'重訓',r:5.0},
+  {n:'快走',r:4.0},
+  {n:'跑步',r:8.5},
+  {n:'瑜珈',r:3.0},
+  {n:'游泳',r:6.5}
+];
+var WT=53.4;
+
+var db=load(), cur=todayStr(), calMonth=cur.slice(0,7), calSel=cur;
+var meal='早餐', exKind='重訓', tab='today';
+
+function load(){
+  try{
+    var r=localStorage.getItem(KEY);
+    if(!r) return {d:{},body:[]};
+    var o=JSON.parse(r);
+    if(!o||typeof o!=='object') return {d:{},body:[]};
+    if(!o.d) o.d={};
+    if(!Array.isArray(o.body)) o.body=[];
+    return o;
+  }catch(e){return {d:{},body:[]};}
+}
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(db));}catch(e){} }
+
+function todayStr(){return iso(new Date());}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
+function pad(n){return n<10?'0'+n:''+n;}
+function shift(ds,n){var p=ds.split('-');var d=new Date(+p[0],+p[1]-1,+p[2]);d.setDate(d.getDate()+n);return iso(d);}
+function wd(ds){var p=ds.split('-');return ['日','一','二','三','四','五','六'][new Date(+p[0],+p[1]-1,+p[2]).getDay()];}
+function md(ds){var p=ds.split('-');return (+p[1])+'/'+(+p[2]);}
+function dayLabel(ds){
+  if(ds===todayStr()) return '今天 '+md(ds);
+  if(ds===shift(todayStr(),-1)) return '昨天 '+md(ds);
+  return md(ds)+' 週'+wd(ds);
+}
+
+function day(ds){
+  if(!db.d[ds]) db.d[ds]={m:[],e:[],w:0};
+  var o=db.d[ds];
+  if(!o.m) o.m=[];
+  if(!o.e) o.e=[];
+  if(o.w==null) o.w=0;
+  return o;
+}
+function has(ds){
+  var o=db.d[ds];
+  if(!o) return false;
+  return (o.m&&o.m.length)||(o.e&&o.e.length)||o.w>0;
+}
+function tot(ds){
+  var t={kcal:0,p:0,c:0,f:0,fi:0,burn:0};
+  var o=db.d[ds];
+  if(!o) return t;
+  var m=o.m||[];
+  for(var i=0;i<m.length;i++){t.kcal+=m[i].kcal||0;t.p+=m[i].p||0;t.c+=m[i].c||0;t.f+=m[i].f||0;t.fi+=m[i].fi||0;}
+  var e=o.e||[];
+  for(var j=0;j<e.length;j++) t.burn+=e[j].kcal||0;
+  return t;
+}
+
+function parseLine(s){
+  s=(s||'').trim();
+  if(!s) return null;
+  var kcal=null,p=0,c=0,f=0,fi=0;
+  var mfi=s.match(/(?:Fi|FI|fi|纖維|纖)\s*[:：]?\s*(\d+(?:\.\d+)?)/);
+  if(mfi) fi=parseFloat(mfi[1]);
+  var rest=mfi?s.replace(mfi[0],' '):s;
+  var mp=rest.match(/(?:^|[\s|｜])[Pp]\s*[:：]?\s*(\d+(?:\.\d+)?)/);
+  var mc=rest.match(/(?:^|[\s|｜])[Cc]\s*[:：]?\s*(\d+(?:\.\d+)?)/);
+  var mf=rest.match(/(?:^|[\s|｜])[Ff]\s*[:：]?\s*(\d+(?:\.\d+)?)/);
+  if(mp)p=parseFloat(mp[1]);
+  if(mc)c=parseFloat(mc[1]);
+  if(mf)f=parseFloat(mf[1]);
+  var mk=s.match(/(\d+(?:\.\d+)?)\s*(?:kcal|大卡|卡)/i);
+  if(mk) kcal=parseFloat(mk[1]);
+  var parts=s.split(/[|｜]/);
+  for(var i=0;i<parts.length;i++) parts[i]=parts[i].trim();
+
+  var tag=null, food='';
+  // 先從第一段拆出餐次
+  var head=parts[0]||'';
+  for(var k=0;k<MEALS.length;k++){
+    if(head.indexOf(MEALS[k])===0){
+      tag=MEALS[k];
+      head=head.slice(MEALS[k].length).replace(/^[\s:：,、-]+/,'');
+      break;
+    }
+  }
+
+  if(parts.length>=2){
+    // 格式：餐次[食物?] | 食物 | 熱量 | 營養素
+    // 若第一段扣掉餐次後還有字，那就是食物；否則食物在第二段
+    if(head){
+      food=head;
+    } else {
+      // 第二段若不是純數字/純營養素，當食物名
+      var seg2=parts[1]||'';
+      if(!/^\d+(\.\d+)?\s*(kcal|大卡|卡)?$/i.test(seg2) &&
+         !/^[PpCcFf]\s*\d/.test(seg2)){
+        food=seg2;
+      }
+    }
+  } else {
+    food=head;
+  }
+
+  if(kcal===null){
+    for(var q=0;q<parts.length;q++){
+      var mm=parts[q].match(/^(\d+(?:\.\d+)?)\s*(?:kcal|大卡|卡)?\s*$/i);
+      if(mm){kcal=parseFloat(mm[1]);break;}
+    }
+  }
+  if(kcal===null) return null;
+  if(!food) food='(未填內容)';
+  return {tag:tag||meal,food:food.slice(0,60),kcal:Math.round(kcal),
+    p:Math.round(p),c:Math.round(c),f:Math.round(f),fi:Math.round(fi),ts:Date.now()};
+}
+
+function esc(s){return String(s).replace(/[&<>"']/g,function(ch){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];});}
+function pct(v,g){return Math.max(0,Math.min(100,g?v/g*100:0));}
+function setBar(id,v,g){
+  var el=document.getElementById(id);
+  el.style.width=pct(v,g)+'%';
+  if(v>g) el.classList.add('over'); else el.classList.remove('over');
+}
+function tErr(id,msg){
+  var e=document.getElementById(id);
+  e.textContent=msg;e.style.display='block';
+  setTimeout(function(){e.style.display='none';},3800);
+}
+
+/* ---------- render ---------- */
+function render(){
+  var dp=document.getElementById('datePill');
+  dp.textContent=dayLabel(cur);
+  if(cur!==todayStr()) dp.classList.add('past'); else dp.classList.remove('past');
+  document.getElementById('dNext').disabled = (cur>=todayStr());
+  if(tab==='today') renderToday();
+  if(tab==='ex') renderEx();
+  if(tab==='cal') renderCal();
+  if(tab==='prog') renderProg();
+}
+
+function renderToday(){
+  var t=tot(cur), o=day(cur);
+  document.getElementById('vK').textContent=t.kcal;
+  document.getElementById('vP').textContent=t.p;
+  document.getElementById('vC').textContent=t.c;
+  document.getElementById('vF').textContent=t.f;
+  document.getElementById('vFi').textContent=t.fi;
+  setBar('tK',t.kcal,GOALS.kcal);
+  setBar('tP',t.p,GOALS.p);
+  setBar('tC',t.c,GOALS.c);
+  setBar('tF',t.f,GOALS.f);
+  setBar('tFi',t.fi,GOALS.fi);
+
+  var net=t.kcal-t.burn;
+  document.getElementById('bIn').textContent=t.kcal;
+  document.getElementById('bOut').textContent=t.burn;
+  document.getElementById('bNet').textContent=net;
+  var left=GOALS.kcal-net;
+  document.getElementById('balFoot').innerHTML= left>=0
+    ? '還可以吃 <b>'+left+'</b> kcal'
+    : '超出 <b style="color:var(--kcal)">'+Math.abs(left)+'</b> kcal';
+
+  var al=document.getElementById('alert');
+  if(t.kcal>0 && net<BMR){
+    al.innerHTML='<b>淨攝取低於基礎代謝率</b><br>目前淨攝取 '+net+' kcal，低於 BMR '+BMR+'。長期這樣掉的是肌肉不是脂肪，記得吃回來。';
+    al.style.display='block';
+  } else { al.style.display='none'; }
+
+  document.getElementById('wNum').textContent=o.w+'/'+GOALS.water;
+  setBar('tW',o.w,GOALS.water);
+
+  var mc=document.getElementById('mealChips'),h='';
+  for(var i=0;i<MEALS.length;i++)
+    h+='<button class="chip'+(MEALS[i]===meal?' on':'')+'" data-m="'+MEALS[i]+'">'+MEALS[i]+'</button>';
+  mc.innerHTML=h;
+  var cs=mc.querySelectorAll('.chip');
+  for(var j=0;j<cs.length;j++) cs[j].addEventListener('click',function(){
+    meal=this.getAttribute('data-m'); renderToday();
+  });
+
+  renderMeals('mList',cur,true);
+}
+
+function renderMeals(boxId,ds,editable){
+  var box=document.getElementById(boxId);
+  var arr=(db.d[ds]&&db.d[ds].m)||[];
+  if(!arr.length){box.innerHTML='<div class="empty">還沒有紀錄</div>';return;}
+  var h='';
+  for(var i=0;i<arr.length;i++){
+    var m=arr[i];
+    h+='<div class="entry"><div class="ebody">'
+      +'<div class="emeta">'+esc(m.tag||'')+'</div>'
+      +'<div class="ename">'+esc(m.food)+'</div>'
+      +'<div class="enums">'
+      +'<div><b style="color:var(--kcal)">'+m.kcal+'</b><span>kcal</span></div>'
+      +'<div><b style="color:var(--p)">'+(m.p||0)+'g</b><span>蛋白</span></div>'
+      +'<div><b style="color:var(--c)">'+(m.c||0)+'g</b><span>碳水</span></div>'
+      +'<div><b style="color:var(--f)">'+(m.f||0)+'g</b><span>脂肪</span></div>'
+      +'<div><b style="color:var(--fi)">'+(m.fi||0)+'g</b><span>纖維</span></div>'
+      +'</div></div>'
+      +(editable?'<button class="ex" data-i="'+i+'">&times;</button>':'')
+      +'</div>';
+  }
+  box.innerHTML=h;
+  if(editable){
+    var xs=box.querySelectorAll('.ex');
+    for(var j=0;j<xs.length;j++) xs[j].addEventListener('click',function(){
+      db.d[ds].m.splice(+this.getAttribute('data-i'),1); save(); render();
+    });
+  }
+}
+
+function renderEx(){
+  var ec=document.getElementById('exChips'),h='';
+  for(var i=0;i<EXS.length;i++)
+    h+='<button class="chip'+(EXS[i].n===exKind?' on':'')+'" data-e="'+EXS[i].n+'">'+EXS[i].n+'</button>';
+  ec.innerHTML=h;
+  var cs=ec.querySelectorAll('.chip');
+  for(var j=0;j<cs.length;j++) cs[j].addEventListener('click',function(){
+    exKind=this.getAttribute('data-e'); renderEx();
+  });
+
+  var box=document.getElementById('exList');
+  var arr=(db.d[cur]&&db.d[cur].e)||[];
+  if(!arr.length){box.innerHTML='<div class="empty">今天還沒有運動紀錄</div>';return;}
+  var o='';
+  for(var k=0;k<arr.length;k++){
+    var e=arr[k];
+    o+='<div class="entry"><div class="ebody">'
+      +'<div class="ename">'+esc(e.kind)+(e.note?' · '+esc(e.note):'')+'</div>'
+      +'<div class="emeta" style="margin:4px 0 0">'+e.min+' 分鐘</div>'
+      +'</div><span class="exkcal">-'+e.kcal+'</span>'
+      +'<button class="ex" data-i="'+k+'">&times;</button></div>';
+  }
+  box.innerHTML=o;
+  var xs=box.querySelectorAll('.ex');
+  for(var q=0;q<xs.length;q++) xs[q].addEventListener('click',function(){
+    db.d[cur].e.splice(+this.getAttribute('data-i'),1); save(); render();
+  });
+}
+
+function renderCal(){
+  var p=calMonth.split('-'), y=+p[0], m=+p[1];
+  document.getElementById('mLabel').textContent=y+'年'+m+'月';
+  var first=new Date(y,m-1,1).getDay();
+  var days=new Date(y,m,0).getDate();
+  var h='';
+  var wds=['日','一','二','三','四','五','六'];
+  for(var i=0;i<7;i++) h+='<div class="wd">'+wds[i]+'</div>';
+  for(var b=0;b<first;b++) h+='<div class="cd blank"></div>';
+  for(var d=1;d<=days;d++){
+    var ds=y+'-'+pad(m)+'-'+pad(d);
+    var cls='cd'+(ds===calSel?' sel':'')+(has(ds)?'':' no');
+    h+='<div class="'+cls+'" data-d="'+ds+'">'+d+'<div class="mk"></div></div>';
+  }
+  var g=document.getElementById('cGrid');
+  g.innerHTML=h;
+  var cds=g.querySelectorAll('.cd[data-d]');
+  for(var j=0;j<cds.length;j++) cds[j].addEventListener('click',function(){
+    calSel=this.getAttribute('data-d'); renderCal();
+  });
+
+  document.getElementById('calDayLabel').textContent=dayLabel(calSel)+' 的紀錄';
+  renderMeals('calList',calSel,false);
+
+  var t=tot(calSel);
+  var rows=[
+    ['熱量',t.kcal+' / '+GOALS.kcal+' kcal'],
+    ['蛋白質',t.p+' / '+GOALS.p+' g'],
+    ['碳水',t.c+' / '+GOALS.c+' g'],
+    ['脂肪',t.f+' / '+GOALS.f+' g'],
+    ['膳食纖維',t.fi+' / '+GOALS.fi+' g'],
+    ['運動消耗',t.burn+' kcal'],
+    ['淨攝取',(t.kcal-t.burn)+' kcal']
+  ];
+  var s='';
+  for(var r=0;r<rows.length;r++)
+    s+='<tr><td class="lb">'+rows[r][0]+'</td><td>'+rows[r][1]+'</td></tr>';
+  document.getElementById('calSum').innerHTML=s;
+}
+
+function last7(){
+  var a=[];
+  for(var i=6;i>=0;i--){var ds=shift(cur,-i);a.push({ds:ds,t:tot(ds)});}
+  return a;
+}
+
+function renderProg(){
+  var days=last7(), max=1;
+  for(var i=0;i<days.length;i++){
+    var v=days[i].t.kcal-days[i].t.burn;
+    if(v>max) max=v;
+  }
+  var h='',sum=0,sp=0,sfi=0,n=0;
+  for(var k=0;k<days.length;k++){
+    var d=days[k], net=d.t.kcal-d.t.burn;
+    if(d.t.kcal>0){sum+=net;sp+=d.t.p;sfi+=d.t.fi;n++;}
+    var hg=Math.max(3,Math.max(0,net)/max*100);
+    var cls='cbar'+(d.t.kcal>0?' has':'')+(d.ds===cur?' today':'');
+    h+='<div class="ccol"><div class="cnum">'+(d.t.kcal>0?net:'')+'</div>'
+      +'<div class="'+cls+'" style="height:'+hg+'%"></div>'
+      +'<div class="cday">'+md(d.ds)+'</div></div>';
+  }
+  document.getElementById('chart').innerHTML=h;
+  document.getElementById('cAvg').innerHTML= n
+    ? '有紀錄 '+n+' 天　日均淨攝取 <b>'+Math.round(sum/n)+'</b> kcal<br>蛋白 <b>'+Math.round(sp/n)+'</b>g　纖維 <b>'+Math.round(sfi/n)+'</b>g'
+    : '這 7 天還沒有紀錄';
+
+  var box=document.getElementById('bList');
+  var arr=db.body.slice().sort(function(a,b){return a.ds<b.ds?1:-1;});
+  if(!arr.length){
+    box.innerHTML='<div class="empty">一週量一次就好<br>同時間、起床空腹</div>';
+  } else {
+    var o='';
+    for(var j=0;j<arr.length&&j<10;j++){
+      var r=arr[j],pv=arr[j+1],dw='',dbf='';
+      if(pv){
+        if(r.w!=null&&pv.w!=null){var a1=r.w-pv.w;
+          dw='<span class="dl '+(a1<0?'dn':(a1>0?'up':''))+'">'+(a1>0?'+':'')+a1.toFixed(1)+'</span>';}
+        if(r.bf!=null&&pv.bf!=null){var a2=r.bf-pv.bf;
+          dbf='<span class="dl '+(a2<0?'dn':(a2>0?'up':''))+'">'+(a2>0?'+':'')+a2.toFixed(1)+'</span>';}
+      }
+      o+='<div class="bitem"><span class="bd">'+md(r.ds)+'</span><span class="bv">'
+        +(r.w!=null?r.w.toFixed(1)+'<em>kg</em>'+dw:'')
+        +(r.w!=null&&r.bf!=null?'　':'')
+        +(r.bf!=null?r.bf.toFixed(1)+'<em>%</em>'+dbf:'')
+        +'</span></div>';
+    }
+    box.innerHTML=o;
+  }
+
+  var latest=arr.length?arr[0]:null;
+  var gs=[
+    ['起始（6/04）','53.4 kg・體脂 38.8%'],
+    ['目前',latest?((latest.w!=null?latest.w.toFixed(1)+' kg':'—')+(latest.bf!=null?'・體脂 '+latest.bf.toFixed(1)+'%':'')):'尚無紀錄'],
+    ['方向','體脂率下降、骨骼肌上升'],
+    ['每日熱量',GOALS.kcal+' kcal'],
+    ['每日蛋白質',GOALS.p+' g']
+  ];
+  var gh='';
+  for(var q=0;q<gs.length;q++)
+    gh+='<tr><td class="lb">'+gs[q][0]+'</td><td>'+gs[q][1]+'</td></tr>';
+  document.getElementById('goalTab').innerHTML=gh;
+}
+
+/* ---------- events ---------- */
+var navs=document.querySelectorAll('nav button');
+for(var i=0;i<navs.length;i++) navs[i].addEventListener('click',function(){
+  for(var j=0;j<navs.length;j++) navs[j].classList.remove('on');
+  this.classList.add('on');
+  tab=this.getAttribute('data-t');
+  var ps=document.querySelectorAll('.pane');
+  for(var k=0;k<ps.length;k++) ps[k].classList.remove('on');
+  document.getElementById('p-'+tab).classList.add('on');
+  render();
+  window.scrollTo(0,0);
+});
+
+document.getElementById('dPrev').addEventListener('click',function(){
+  cur=shift(cur,-1); calSel=cur; calMonth=cur.slice(0,7); render();
+});
+document.getElementById('dNext').addEventListener('click',function(){
+  if(cur>=todayStr()) return;
+  cur=shift(cur,1); calSel=cur; calMonth=cur.slice(0,7); render();
+});
+
+document.getElementById('datePill').addEventListener('click',function(){
+  if(cur!==todayStr()){ cur=todayStr(); calSel=cur; calMonth=cur.slice(0,7); render(); return; }
+  var v=prompt('切換日期（YYYY-MM-DD）',cur);
+  if(!v) return;
+  v=v.trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){alert('格式要像 2026-07-24');return;}
+  cur=v; calSel=v; calMonth=v.slice(0,7); render();
+});
+
+document.getElementById('setBtn').addEventListener('click',function(){
+  var v=prompt('每日目標，用逗號分隔：\n熱量,蛋白,碳水,脂肪,纖維,水(ml)',
+    [GOALS.kcal,GOALS.p,GOALS.c,GOALS.f,GOALS.fi,GOALS.water].join(','));
+  if(!v) return;
+  var a=v.split(',');
+  if(a.length<6){alert('要六個數字');return;}
+  var keys=['kcal','p','c','f','fi','water'];
+  for(var i=0;i<6;i++){
+    var n=parseFloat(a[i]);
+    if(!isNaN(n)&&n>0) GOALS[keys[i]]=Math.round(n);
+  }
+  try{localStorage.setItem(KEY+'.goals',JSON.stringify(GOALS));}catch(e){}
+  document.getElementById('gK').textContent=GOALS.kcal;
+  document.getElementById('gP').textContent=GOALS.p;
+  document.getElementById('gC').textContent=GOALS.c;
+  document.getElementById('gF').textContent=GOALS.f;
+  document.getElementById('gFi').textContent=GOALS.fi;
+  render();
+});
+
+try{
+  var sg=localStorage.getItem(KEY+'.goals');
+  if(sg){var g=JSON.parse(sg);for(var gk in GOALS) if(g[gk]) GOALS[gk]=g[gk];}
+}catch(e){}
+
+function addMeal(){
+  var inp=document.getElementById('mIn');
+  var raw=(inp.value||'').split(/\r?\n/);
+  var ok=0, bad=[];
+  for(var i=0;i<raw.length;i++){
+    var line=raw[i].trim();
+    if(!line) continue;
+    var m=parseLine(line);
+    if(m){ day(cur).m.push(m); ok++; }
+    else bad.push(line.slice(0,16));
+  }
+  if(!ok && !bad.length){ return; }
+  if(ok){ save(); inp.value=bad.join('\n'); }
+  if(bad.length){
+    tErr('mErr', (ok? '已記錄 '+ok+' 筆。':'') + '這 '+bad.length+' 行讀不到熱量，留在框裡：'+bad.join('、'));
+  } else {
+    inp.blur();
+  }
+  render();
+}
+document.getElementById('mAdd').addEventListener('click',addMeal);
+
+document.getElementById('exAdd').addEventListener('click',function(){
+  var nm=document.getElementById('exName').value.trim();
+  var mn=parseInt(document.getElementById('exMin').value,10);
+  var kc=parseInt(document.getElementById('exKcal').value,10);
+  if(isNaN(mn)||mn<=0){alert('要填分鐘');return;}
+  if(isNaN(kc)||kc<=0){
+    var met=5;
+    for(var i=0;i<EXS.length;i++) if(EXS[i].n===exKind) met=EXS[i].r;
+    kc=Math.round(met*WT*(mn/60));
+  }
+  day(cur).e.push({kind:exKind,note:nm,min:mn,kcal:kc,ts:Date.now()});
+  save();
+  document.getElementById('exName').value='';
+  document.getElementById('exMin').value='';
+  document.getElementById('exKcal').value='';
+  document.getElementById('exMin').blur();
+  render();
+});
+
+var wbs=document.querySelectorAll('.wbtn');
+for(var w=0;w<wbs.length;w++) wbs[w].addEventListener('click',function(){
+  var v=+this.getAttribute('data-w');
+  var o=day(cur);
+  o.w = v===0 ? 0 : Math.min(6000,o.w+v);
+  save(); renderToday();
+});
+
+document.getElementById('mPrev').addEventListener('click',function(){
+  var p=calMonth.split('-'),y=+p[0],m=+p[1]-1;
+  if(m<1){m=12;y--;}
+  calMonth=y+'-'+pad(m); renderCal();
+});
+document.getElementById('mNext').addEventListener('click',function(){
+  var p=calMonth.split('-'),y=+p[0],m=+p[1]+1;
+  if(m>12){m=1;y++;}
+  calMonth=y+'-'+pad(m); renderCal();
+});
+
+document.getElementById('bAdd').addEventListener('click',function(){
+  var w=parseFloat(document.getElementById('wgt').value);
+  var b=parseFloat(document.getElementById('bfp').value);
+  if(isNaN(w)&&isNaN(b)) return;
+  var rec={ds:cur,w:isNaN(w)?null:w,bf:isNaN(b)?null:b},found=false;
+  for(var i=0;i<db.body.length;i++) if(db.body[i].ds===cur){db.body[i]=rec;found=true;break;}
+  if(!found) db.body.push(rec);
+  save();
+  document.getElementById('wgt').value='';
+  document.getElementById('bfp').value='';
+  document.getElementById('wgt').blur();
+  renderProg();
+});
+
+document.getElementById('repBtn').addEventListener('click',function(){
+  var days=last7();
+  var L=['近 7 日飲食紀錄（'+days[0].ds+' ~ '+days[6].ds+'）',''];
+  var sk=0,sp=0,sc=0,sf=0,sfi=0,sb=0,n=0;
+  for(var i=0;i<days.length;i++){
+    var d=days[i],t=d.t,o=db.d[d.ds];
+    if(t.kcal>0||t.burn>0){
+      if(t.kcal>0){sk+=t.kcal;sp+=t.p;sc+=t.c;sf+=t.f;sfi+=t.fi;n++;}
+      sb+=t.burn;
+      L.push(md(d.ds)+' 週'+wd(d.ds)+'  攝取 '+t.kcal+' / 消耗 '+t.burn+' / 淨 '+(t.kcal-t.burn)+' kcal');
+      L.push('   P'+t.p+' C'+t.c+' F'+t.f+' 纖'+t.fi+(o&&o.w?'　水 '+o.w+'ml':''));
+      var m=(o&&o.m)||[];
+      for(var j=0;j<m.length;j++) L.push('   · '+(m[j].tag||'')+' '+m[j].food+' '+m[j].kcal);
+      var e=(o&&o.e)||[];
+      for(var k=0;k<e.length;k++) L.push('   ▲ '+e[k].kind+' '+e[k].min+'分 -'+e[k].kcal);
+    } else {
+      L.push(md(d.ds)+' 週'+wd(d.ds)+'  —');
+    }
+    L.push('');
+  }
+  if(n){
+    L.push('有紀錄 '+n+' 天，日均：');
+    L.push('攝取 '+Math.round(sk/n)+' kcal　P'+Math.round(sp/n)+'　C'+Math.round(sc/n)+'　F'+Math.round(sf/n)+'　纖'+Math.round(sfi/n));
+    L.push('運動消耗合計 '+sb+' kcal');
+    L.push('目標：'+GOALS.kcal+' kcal　P'+GOALS.p+'　C'+GOALS.c+'　F'+GOALS.f+'　纖'+GOALS.fi);
+  }
+  var b=db.body.slice().sort(function(a,x){return a.ds<x.ds?1:-1;});
+  if(b.length){
+    L.push('');L.push('體組成：');
+    for(var q=0;q<b.length&&q<5;q++)
+      L.push(md(b[q].ds)+'  '+(b[q].w!=null?b[q].w.toFixed(1)+'kg ':'')+(b[q].bf!=null?b[q].bf.toFixed(1)+'%':''));
+  }
+  var txt=L.join('\n');
+  var out=document.getElementById('repOut');
+  out.textContent=txt; out.style.display='block';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      var dn=document.getElementById('repDone');
+      dn.style.display='block';
+      setTimeout(function(){dn.style.display='none';},2800);
+    }).catch(function(){});
+  }
+});
+
+function bundle(){
+  return JSON.stringify({app:'fdiary',v:1,exported:todayStr(),goals:GOALS,data:db});
+}
+document.getElementById('expBtn').addEventListener('click',function(){
+  var blob=new Blob([bundle()],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='飲食日記備份-'+todayStr()+'.json';
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
+});
+document.getElementById('expCopy').addEventListener('click',function(){
+  var txt=bundle();
+  var out=document.getElementById('repOut');
+  out.textContent=txt; out.style.display='block';
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){
+      var d=document.getElementById('expDone');
+      d.style.display='block';
+      setTimeout(function(){d.style.display='none';},2800);
+    }).catch(function(){});
+  }
+});
+document.getElementById('impBtn').addEventListener('click',function(){
+  var v=prompt('把備份內容整段貼進來：');
+  if(!v) return;
+  var o;
+  try{ o=JSON.parse(v.trim()); }catch(e){ alert('讀不懂這段內容，確認有整段複製到'); return; }
+  if(!o||o.app!=='fdiary'||!o.data||!o.data.d){ alert('這不是飲食日記的備份檔'); return; }
+  var n=0; for(var k in o.data.d) n++;
+  if(!confirm('這份備份有 '+n+' 天的紀錄。還原會覆蓋目前手機上的資料，確定？')) return;
+  db={d:o.data.d||{},body:Array.isArray(o.data.body)?o.data.body:[]};
+  save();
+  if(o.goals){
+    for(var g in GOALS) if(o.goals[g]) GOALS[g]=o.goals[g];
+    try{localStorage.setItem(KEY+'.goals',JSON.stringify(GOALS));}catch(e){}
+    document.getElementById('gK').textContent=GOALS.kcal;
+    document.getElementById('gP').textContent=GOALS.p;
+    document.getElementById('gC').textContent=GOALS.c;
+    document.getElementById('gF').textContent=GOALS.f;
+    document.getElementById('gFi').textContent=GOALS.fi;
+  }
+  render();
+  alert('已還原 '+n+' 天的紀錄');
+});
+
+document.getElementById('wipeBtn').addEventListener('click',function(){
+  if(!confirm('確定要刪除所有紀錄嗎？無法復原。')) return;
+  if(!confirm('真的確定？')) return;
+  db={d:{},body:[]}; save(); render();
+  alert('已清除');
+});
+
+render();
+})();
+</script>
+</body>
+</html>
