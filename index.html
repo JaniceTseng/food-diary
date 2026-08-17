@@ -4,48 +4,63 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="飲食日記">
+<meta name="apple-mobile-web-app-title" content="莓好食光">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#FCF4E6">
-<title>飲食日記</title>
+<meta name="theme-color" content="#F7F1F5">
+<title>莓好食光</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#FCF4E6;
+  --bg:#F7F1F5;
   --card:#FFFFFF;
-  --line:#F0E1C8;
-  --ink:#33291C;
-  --dim:#9C8B70;
-  --green:#C0761B;
-  --green-l:#FBEBD2;
-  --kcal:#D4622B;
-  --p:#2F8A6E;
-  --c:#4A73B5;
-  --f:#B8862F;
-  --fi:#8A64B0;
-  --water:#3D96C2;
-  --warn-bg:#FDF0DA;
-  --warn-line:#EBCF9C;
-  --warn-ink:#8C5C15;
+  --line:#EBE1EC;
+  --line2:#F1EAF1;
+  --ink:#2E2530;
+  --dim:#9A8CA0;
+  --faint:#BCAFC2;
+  --green:#8E5AB8;
+  --green-d:#6F429A;
+  --green-l:#EFE6F7;
+  --kcal:#D96BA0;
+  --kcal-l:#F9E4EF;
+  --p:#2E9E7B;
+  --p-l:#DBF1E8;
+  --c:#4E82C4;
+  --c-l:#DEEAF8;
+  --f:#E0A32E;
+  --f-l:#FAEFD4;
+  --fi:#9270C4;
+  --fi-l:#EAE1F6;
+  --water:#3EA0CC;
+  --water-l:#DAEEF6;
+  --warn-bg:#F3EBF9;
+  --warn-line:#DEC9F0;
+  --warn-ink:#6F449B;
+  --shadow:0 1px 2px rgba(70,40,80,.04), 0 4px 16px rgba(90,50,110,.06);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
 body{
   background:var(--bg);color:var(--ink);
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC","Helvetica Neue",sans-serif;
-  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased;
+  font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"PingFang TC","Helvetica Neue",sans-serif;
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
   padding:0 0 40px;
 }
 .wrap{max-width:540px;margin:0 auto;padding:0 14px}
 
 /* header */
-header{padding:calc(env(safe-area-inset-top) + 16px) 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-h1{font-size:23px;font-weight:700;margin:0;letter-spacing:.01em;flex:1;min-width:0}
+header{padding:calc(env(safe-area-inset-top) + 20px) 0 14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+h1{font-family:"Fraunces",serif;font-size:25px;font-weight:600;margin:0;letter-spacing:0;flex:1;min-width:0;color:var(--ink)}
 .pill{
   background:var(--card);border:1px solid var(--line);border-radius:99px;
   padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;color:var(--ink);
-  white-space:nowrap;font-variant-numeric:tabular-nums;
+  white-space:nowrap;font-variant-numeric:tabular-nums;box-shadow:var(--shadow);
+  transition:transform .12s ease;
 }
-.pill:active{background:var(--line)}
+.pill:active{background:var(--line);transform:scale(.97)}
 .pill.on{background:var(--green-l);border-color:#EBCF9C;color:var(--green);font-weight:600}
 .dnav{display:flex;align-items:center;gap:4px}
 .arw{
@@ -60,16 +75,51 @@ h1{font-size:23px;font-weight:700;margin:0;letter-spacing:.01em;flex:1;min-width
 .pill .ck{margin-right:3px}
 
 /* tabs */
-nav{display:flex;background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px}
+nav{display:flex;gap:5px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:4px;margin-bottom:16px;box-shadow:var(--shadow)}
 nav button{
-  flex:1;background:none;border:none;padding:12px 2px;font-size:13.5px;font-family:inherit;
-  color:var(--dim);cursor:pointer;font-weight:500;border-right:1px solid var(--line);
+  flex:1;background:none;border:none;padding:9px 2px;font-size:13.5px;font-family:inherit;
+  color:var(--dim);cursor:pointer;font-weight:500;border-radius:10px;
+  transition:background .18s ease,color .18s ease;
 }
-nav button:last-child{border-right:none}
-nav button.on{background:var(--green);color:#fff;font-weight:600}
+nav button.on{background:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(142,90,184,.30)}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:15px;margin-bottom:12px}
-.card h3{font-size:13px;color:var(--dim);margin:0 0 12px;font-weight:600;letter-spacing:.04em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:13px;box-shadow:var(--shadow)}
+.card h3{font-size:11.5px;color:var(--faint);margin:0 0 13px;font-weight:700;letter-spacing:.12em;text-transform:none}
+
+/* ---- today hero: calorie ring + macros ---- */
+.hero{
+  background:var(--card);border:1px solid var(--line);border-radius:22px;
+  padding:20px 18px;margin-bottom:13px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:18px;
+}
+.ring{position:relative;flex-shrink:0;width:132px;height:132px}
+.ring svg{display:block}
+.ring-bg{fill:none;stroke:var(--kcal-l);stroke-width:11}
+.ring-fg{fill:none;stroke:var(--kcal);stroke-width:11;stroke-linecap:round;
+  stroke-dasharray:326.7;stroke-dashoffset:326.7;
+  transition:stroke-dashoffset .7s cubic-bezier(.4,0,.2,1),stroke .3s ease}
+.ring-c{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-n{font-family:"Fraunces",serif;font-size:38px;font-weight:600;line-height:1;
+  color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.ring-l{font-size:11.5px;color:var(--dim);margin-top:4px;font-variant-numeric:tabular-nums}
+.hero-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:11px}
+.macro-top{display:flex;justify-content:space-between;align-items:baseline}
+.macro-name{font-size:12.5px;color:var(--ink);font-weight:500}
+.macro-v{font-size:14px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.macro-v i{font-style:normal;font-size:11px;font-weight:400;color:var(--faint);margin-left:1px}
+.macro[data-k="p"] .macro-name::before,
+.macro[data-k="c"] .macro-name::before,
+.macro[data-k="f"] .macro-name::before,
+.macro[data-k="fi"] .macro-name::before{
+  content:"";display:inline-block;width:7px;height:7px;border-radius:99px;margin-right:6px;vertical-align:1px}
+.macro[data-k="p"] .macro-name::before{background:var(--p)}
+.macro[data-k="c"] .macro-name::before{background:var(--c)}
+.macro[data-k="f"] .macro-name::before{background:var(--f)}
+.macro[data-k="fi"] .macro-name::before{background:var(--fi)}
+@media(max-width:360px){
+  .hero{flex-direction:column;gap:14px}
+  .hero-side{width:100%}
+}
 
 .alert{
   background:var(--warn-bg);border:1px solid var(--warn-line);color:var(--warn-ink);
@@ -84,29 +134,29 @@ nav button.on{background:var(--green);color:#fff;font-weight:600}
 .mbox .val{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.15;letter-spacing:-.01em}
 .mbox .val small{font-size:12.5px;color:var(--dim);font-weight:400;margin-left:1px}
 .mbox .val .u{font-size:14px;font-weight:600}
-.track{height:5px;background:#F4E7D2;border-radius:99px;margin-top:9px;overflow:hidden}
-.track span{display:block;height:100%;border-radius:99px;width:0;transition:width .35s ease}
+.track{height:7px;background:var(--line2);border-radius:99px;margin-top:8px;overflow:hidden}
+.track span{display:block;height:100%;border-radius:99px;width:0;transition:width .5s cubic-bezier(.4,0,.2,1)}
 .over{background:var(--kcal) !important}
 
 /* balance */
 .bal{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;gap:6px}
-.bal .n{font-size:23px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.bal .n{font-family:"Fraunces",serif;font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.15}
 .bal .k{font-size:12px;color:var(--dim);margin-top:3px}
-.balfoot{text-align:center;border-top:1px solid var(--line);margin-top:13px;padding-top:12px;font-size:15px}
-.balfoot b{font-weight:700;font-variant-numeric:tabular-nums}
+.balfoot{text-align:center;border-top:1px solid var(--line2);margin-top:14px;padding-top:13px;font-size:14px;color:var(--dim)}
+.balfoot b{font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink);font-size:15px}
 
 /* water */
 .wrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .wrow .wlabel{font-size:14px;font-weight:600;margin-right:2px}
-.wbtn{background:var(--card);border:1px solid #BEDDEB;color:var(--water);border-radius:99px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:600}
-.wbtn:active{background:#EAF6FB}
-.wbtn.rs{border-color:var(--line);color:var(--dim);font-weight:500}
+.wbtn{background:var(--water-l);border:1px solid transparent;color:var(--water);border-radius:99px;padding:7px 13px;font-size:12.5px;cursor:pointer;font-family:inherit;font-weight:700;transition:transform .12s ease}
+.wbtn:active{transform:scale(.94)}
+.wbtn.rs{background:transparent;border:1px solid var(--line);color:var(--faint);font-weight:500}
 .wnum{margin-left:auto;font-size:14px;font-variant-numeric:tabular-nums;font-weight:600;color:var(--water)}
 
 /* meal type chips */
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
-.chip{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:7px 15px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--ink)}
-.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:600}
+.chip{background:var(--bg);border:1px solid transparent;border-radius:99px;padding:8px 16px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--dim);transition:all .15s ease}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 7px rgba(142,90,184,.28)}
 .chip.ex.on{background:var(--green);border-color:var(--green)}
 
 /* input */
@@ -129,12 +179,19 @@ textarea#mIn{
 }
 textarea#mIn::placeholder{color:#BFAE92}
 textarea#mIn:focus{outline:none;border-color:var(--green);background:#fff}
+textarea#expBox,textarea#impBox{
+  width:100%;background:#FEFAF2;border:1px solid var(--line);border-radius:10px;
+  padding:11px 12px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:#54463A;line-height:1.6;resize:vertical;min-height:80px;margin-top:9px;
+  -webkit-user-select:text;user-select:text;
+}
+textarea#expBox:focus,textarea#impBox:focus{outline:none;border-color:var(--green);background:#fff}
 .hint{font-size:11.5px;color:#AD9C80;margin-top:9px;line-height:1.6}
 .hint code{background:#FBF1DF;padding:2px 6px;border-radius:5px;font-size:10.5px;color:#A05F12;word-break:break-all}
 .err{color:var(--kcal);font-size:12.5px;margin-top:8px;display:none}
 
 /* entries */
-.entry{border:1px solid var(--line);border-radius:12px;padding:12px 13px;margin-bottom:9px;background:var(--card);display:flex;gap:11px;align-items:flex-start}
+.entry{border:1px solid var(--line2);border-radius:14px;padding:13px 14px;margin-bottom:9px;background:var(--card);display:flex;gap:11px;align-items:flex-start}
 .entry:last-child{margin-bottom:0}
 .ebody{flex:1;min-width:0}
 .emeta{font-size:11.5px;color:var(--dim);margin-bottom:4px}
@@ -145,7 +202,7 @@ textarea#mIn:focus{outline:none;border-color:var(--green);background:#fff}
 .enums span{font-size:10px;color:var(--dim)}
 .ex{background:none;border:none;color:#D2BE9E;font-size:19px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 .ex:active{color:var(--kcal)}
-.empty{color:#B5A488;font-size:13.5px;text-align:center;padding:22px 8px;line-height:1.75}
+.empty{color:var(--faint);font-size:13.5px;text-align:center;padding:26px 8px;line-height:1.8}
 
 /* exercise */
 .exin{display:grid;grid-template-columns:1fr 74px 74px auto;gap:7px}
@@ -215,7 +272,7 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
 <div class="wrap">
 
 <header>
-  <h1>飲食日記</h1>
+  <h1>莓好食光</h1>
   <div class="dnav">
     <button class="arw" id="dPrev" aria-label="前一天">&lsaquo;</button>
     <button class="pill dp" id="datePill"></button>
@@ -236,31 +293,39 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
 <div class="pane on" id="p-today">
   <div class="alert" id="alert"></div>
 
-  <div class="mgrid">
-    <div class="mbox">
-      <div class="lbl">熱量</div>
-      <div class="val"><span id="vK">0</span><small> / <span id="gK">1350</span></small></div>
-      <div class="track"><span id="tK" style="background:var(--kcal)"></span></div>
+  <div class="hero">
+    <div class="ring">
+      <svg viewBox="0 0 120 120" width="132" height="132">
+        <circle class="ring-bg" cx="60" cy="60" r="52"/>
+        <circle class="ring-fg" id="ringK" cx="60" cy="60" r="52"
+          transform="rotate(-90 60 60)"/>
+      </svg>
+      <div class="ring-c">
+        <div class="ring-n" id="vK">0</div>
+        <div class="ring-l">/ <span id="gK">1400</span> kcal</div>
+      </div>
     </div>
-    <div class="mbox">
-      <div class="lbl">蛋白質</div>
-      <div class="val"><span id="vP">0</span><span class="u">g</span><small>/<span id="gP">88</span>g</small></div>
-      <div class="track"><span id="tP" style="background:var(--p)"></span></div>
-    </div>
-    <div class="mbox">
-      <div class="lbl">碳水</div>
-      <div class="val"><span id="vC">0</span><span class="u">g</span><small>/<span id="gC">120</span>g</small></div>
-      <div class="track"><span id="tC" style="background:var(--c)"></span></div>
-    </div>
-    <div class="mbox">
-      <div class="lbl">脂肪</div>
-      <div class="val"><span id="vF">0</span><span class="u">g</span><small>/<span id="gF">45</span>g</small></div>
-      <div class="track"><span id="tF" style="background:var(--f)"></span></div>
-    </div>
-    <div class="mbox" style="grid-column:1 / -1">
-      <div class="lbl">膳食纖維</div>
-      <div class="val"><span id="vFi">0</span><span class="u">g</span><small>/<span id="gFi">28</span>g</small></div>
-      <div class="track"><span id="tFi" style="background:var(--fi)"></span></div>
+    <div class="hero-side">
+      <div class="macro" data-k="p">
+        <div class="macro-top"><span class="macro-name">蛋白質</span>
+          <span class="macro-v"><span id="vP">0</span><i>/<span id="gP">88</span>g</i></span></div>
+        <div class="track"><span id="tP" style="background:var(--p)"></span></div>
+      </div>
+      <div class="macro" data-k="c">
+        <div class="macro-top"><span class="macro-name">碳水</span>
+          <span class="macro-v"><span id="vC">0</span><i>/<span id="gC">120</span>g</i></span></div>
+        <div class="track"><span id="tC" style="background:var(--c)"></span></div>
+      </div>
+      <div class="macro" data-k="f">
+        <div class="macro-top"><span class="macro-name">脂肪</span>
+          <span class="macro-v"><span id="vF">0</span><i>/<span id="gF">45</span>g</i></span></div>
+        <div class="track"><span id="tF" style="background:var(--f)"></span></div>
+      </div>
+      <div class="macro" data-k="fi">
+        <div class="macro-top"><span class="macro-name">膳食纖維</span>
+          <span class="macro-v"><span id="vFi">0</span><i>/<span id="gFi">28</span>g</i></span></div>
+        <div class="track"><span id="tFi" style="background:var(--fi)"></span></div>
+      </div>
     </div>
   </div>
 
@@ -375,14 +440,19 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
     <div class="note">這頁不自動生成建議——數據貼給 Claude 做分析比較準。</div>
   </div>
   <div class="card">
-    <h3>備份與還原</h3>
+    <h3>備份</h3>
     <button class="bigbtn" id="expBtn">下載備份檔</button>
-    <div class="inrow" style="margin-top:9px">
-      <button class="bigbtn" id="expCopy" style="background:#FEFAF2;color:var(--green);border:1px solid var(--line)">複製成文字</button>
-      <button class="bigbtn" id="impBtn" style="background:#FEFAF2;color:var(--green);border:1px solid var(--line)">還原備份</button>
-    </div>
-    <div class="done" id="expDone">已複製</div>
-    <div class="note">備份檔是一個 .json，存到 iCloud／Google Drive 或用 LINE 傳給自己都行。換手機或清瀏覽器資料後，用「還原備份」貼回來。<br>建議每週做一次，順手在按週報的時候一起。</div>
+    <button class="bigbtn" id="expCopy" style="background:#FEFAF2;color:var(--green);border:1px solid var(--line);margin-top:9px">顯示備份文字（可複製）</button>
+    <textarea id="expBox" readonly placeholder="按上面「顯示備份文字」，這裡會出現一整段內容，長按全選複製，貼到備忘錄或 LINE 傳給自己。"></textarea>
+    <div class="done" id="expDone">已複製到剪貼簿</div>
+    <div class="note">兩種備份任選：<br>・<b>下載備份檔</b>：存成 .json 到 iCloud／檔案 App。<br>・<b>顯示備份文字</b>：長按全選複製，貼到備忘錄或 LINE。<br>建議一週一次，按週報時順手做。</div>
+  </div>
+
+  <div class="card">
+    <h3>還原備份</h3>
+    <textarea id="impBox" placeholder="把之前備份的內容整段貼進這裡，再按下面的還原。"></textarea>
+    <button class="bigbtn" id="impBtn" style="margin-top:9px">還原（會覆蓋目前資料）</button>
+    <div class="note">只有換手機或資料不見時才用。還原會用貼上的內容覆蓋掉現在手機上的紀錄。
   </div>
 
   <div class="card">
@@ -400,7 +470,7 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
 'use strict';
 
 var KEY='fdiary.v1';
-var GOALS={kcal:1350,p:88,c:120,f:45,fi:28,water:2000};
+var GOALS={kcal:1400,p:88,c:120,f:45,fi:28,water:2000};
 var BMR=1076;
 var MEALS=['早餐','午餐','晚餐','點心','飲料','其他'];
 var EXS=[
@@ -530,6 +600,7 @@ function esc(s){return String(s).replace(/[&<>"']/g,function(ch){
 function pct(v,g){return Math.max(0,Math.min(100,g?v/g*100:0));}
 function setBar(id,v,g){
   var el=document.getElementById(id);
+  if(!el) return;
   el.style.width=pct(v,g)+'%';
   if(v>g) el.classList.add('over'); else el.classList.remove('over');
 }
@@ -558,7 +629,16 @@ function renderToday(){
   document.getElementById('vC').textContent=t.c;
   document.getElementById('vF').textContent=t.f;
   document.getElementById('vFi').textContent=t.fi;
-  setBar('tK',t.kcal,GOALS.kcal);
+
+  // calorie ring
+  var C=326.7;
+  var frac=GOALS.kcal? Math.min(1,t.kcal/GOALS.kcal):0;
+  var ring=document.getElementById('ringK');
+  ring.style.strokeDashoffset=C*(1-frac);
+  ring.style.stroke = t.kcal>GOALS.kcal ? 'var(--kcal)' : 'var(--kcal)';
+  var vk=document.getElementById('vK');
+  vk.style.color = t.kcal>GOALS.kcal ? 'var(--kcal)' : 'var(--ink)';
+
   setBar('tP',t.p,GOALS.p);
   setBar('tC',t.c,GOALS.c);
   setBar('tF',t.f,GOALS.f);
@@ -944,14 +1024,15 @@ document.getElementById('expBtn').addEventListener('click',function(){
   var blob=new Blob([bundle()],{type:'application/json'});
   var url=URL.createObjectURL(blob);
   var a=document.createElement('a');
-  a.href=url; a.download='飲食日記備份-'+todayStr()+'.json';
+  a.href=url; a.download='莓好食光備份-'+todayStr()+'.json';
   document.body.appendChild(a); a.click();
   setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
 });
 document.getElementById('expCopy').addEventListener('click',function(){
   var txt=bundle();
-  var out=document.getElementById('repOut');
-  out.textContent=txt; out.style.display='block';
+  var box=document.getElementById('expBox');
+  box.value=txt;
+  box.focus(); box.setSelectionRange(0,txt.length);
   if(navigator.clipboard&&navigator.clipboard.writeText){
     navigator.clipboard.writeText(txt).then(function(){
       var d=document.getElementById('expDone');
@@ -961,11 +1042,11 @@ document.getElementById('expCopy').addEventListener('click',function(){
   }
 });
 document.getElementById('impBtn').addEventListener('click',function(){
-  var v=prompt('把備份內容整段貼進來：');
-  if(!v) return;
+  var v=document.getElementById('impBox').value;
+  if(!v||!v.trim()){ alert('先把備份內容貼進上面的框'); return; }
   var o;
   try{ o=JSON.parse(v.trim()); }catch(e){ alert('讀不懂這段內容，確認有整段複製到'); return; }
-  if(!o||o.app!=='fdiary'||!o.data||!o.data.d){ alert('這不是飲食日記的備份檔'); return; }
+  if(!o||o.app!=='fdiary'||!o.data||!o.data.d){ alert('這不是莓好食光的備份檔'); return; }
   var n=0; for(var k in o.data.d) n++;
   if(!confirm('這份備份有 '+n+' 天的紀錄。還原會覆蓋目前手機上的資料，確定？')) return;
   db={d:o.data.d||{},body:Array.isArray(o.data.body)?o.data.body:[]};
@@ -979,6 +1060,7 @@ document.getElementById('impBtn').addEventListener('click',function(){
     document.getElementById('gF').textContent=GOALS.f;
     document.getElementById('gFi').textContent=GOALS.fi;
   }
+  document.getElementById('impBox').value='';
   render();
   alert('已還原 '+n+' 天的紀錄');
 });
