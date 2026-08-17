@@ -408,7 +408,10 @@ var EXS=[
   {n:'快走',r:4.0},
   {n:'跑步',r:8.5},
   {n:'瑜珈',r:3.0},
-  {n:'游泳',r:6.5}
+  {n:'游泳',r:6.5},
+  {n:'騎車',r:6.0},
+  {n:'爬山',r:6.5},
+  {n:'其他',r:4.5}
 ];
 var WT=53.4;
 
@@ -629,6 +632,9 @@ function renderEx(){
   for(var j=0;j<cs.length;j++) cs[j].addEventListener('click',function(){
     exKind=this.getAttribute('data-e'); renderEx();
   });
+  var nameInp=document.getElementById('exName');
+  if(exKind==='其他'){ nameInp.placeholder='項目名稱（例如皮拉提斯）'; }
+  else { nameInp.placeholder='項目說明（可空白）'; }
 
   var box=document.getElementById('exList');
   var arr=(db.d[cur]&&db.d[cur].e)||[];
@@ -835,12 +841,17 @@ document.getElementById('exAdd').addEventListener('click',function(){
   var mn=parseInt(document.getElementById('exMin').value,10);
   var kc=parseInt(document.getElementById('exKcal').value,10);
   if(isNaN(mn)||mn<=0){alert('要填分鐘');return;}
+  var kind=exKind, note=nm;
+  if(exKind==='其他'){
+    if(!nm){alert('「其他」要填項目名稱');return;}
+    kind=nm; note='';
+  }
   if(isNaN(kc)||kc<=0){
-    var met=5;
+    var met=4.5;
     for(var i=0;i<EXS.length;i++) if(EXS[i].n===exKind) met=EXS[i].r;
     kc=Math.round(met*WT*(mn/60));
   }
-  day(cur).e.push({kind:exKind,note:nm,min:mn,kcal:kc,ts:Date.now()});
+  day(cur).e.push({kind:kind,note:note,min:mn,kcal:kc,ts:Date.now()});
   save();
   document.getElementById('exName').value='';
   document.getElementById('exMin').value='';
