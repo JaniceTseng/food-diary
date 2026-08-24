@@ -241,6 +241,9 @@ textarea#expBox:focus,textarea#impBox:focus{outline:none;border-color:var(--gree
 .cday{font-size:9.5px;color:#AD9C80}
 .cavg{font-size:12.5px;color:var(--dim);text-align:center;padding-top:11px;border-top:1px solid var(--line);line-height:1.8}
 .cavg b{color:var(--ink);font-weight:700}
+.clegend{display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12px;color:var(--dim)}
+.clegend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:5px;vertical-align:2px}
+.bchart-empty{color:var(--faint);font-size:13px;text-align:center;padding:20px 8px;line-height:1.7}
 
 /* body */
 .brow3{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
@@ -423,6 +426,14 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
     </div>
     <div class="blist" id="bList"></div>
   </div>
+  <div class="card" id="trendCard">
+    <h3>體重體脂趨勢</h3>
+    <div id="bChart"></div>
+    <div class="clegend">
+      <span><i style="background:var(--green)"></i>體重 kg</span>
+      <span><i style="background:var(--kcal)"></i>體脂 %</span>
+    </div>
+  </div>
   <div class="card">
     <h3>目標</h3>
     <table class="stab" id="goalTab"></table>
@@ -483,7 +494,12 @@ var EXS=[
   {n:'爬山',r:6.5},
   {n:'其他',r:4.5}
 ];
-var WT=53.4;
+var WT=53.8; // 預設起始體重，實際計算會用最新紀錄
+function curWeight(){
+  var arr=db.body.slice().sort(function(a,b){return a.ds<b.ds?1:-1;});
+  for(var i=0;i<arr.length;i++){ if(arr[i].w!=null) return arr[i].w; }
+  return WT;
+}
 
 var db=load(), cur=todayStr(), calMonth=cur.slice(0,7), calSel=cur;
 var meal='早餐', exKind='重訓', tab='today';
@@ -587,6 +603,15 @@ function parseLine(s){
     for(var q=0;q<parts.length;q++){
       var mm=parts[q].match(/^(\d+(?:\.\d+)?)\s*(?:kcal|大卡|卡)?\s*$/i);
       if(mm){kcal=parseFloat(mm[1]);break;}
+    }
+  }
+  // 最後手段：沒有豎線也沒寫 kcal（例如「鍋燒烏龍麵 520」），
+  // 且沒有 P/C/F 營養素時，抓結尾 2-4 位數字當熱量，前面當食物名
+  if(kcal===null && parts.length===1 && p===0 && c===0 && f===0){
+    var tail=food.match(/^(.*?)[\s]*?(\d{2,4})\s*$/);
+    if(tail){
+      food=tail[1].trim();
+      kcal=parseFloat(tail[2]);
     }
   }
   if(kcal===null) return null;
@@ -781,6 +806,75 @@ function last7(){
   return a;
 }
 
+function renderBodyChart(){
+  var box=document.getElementById('bChart');
+  var arr=db.body.slice().sort(function(a,b){return a.ds<b.ds?1:-1;}); // newest first
+  var W=arr.filter(function(x){return x.w!=null;});
+  var F=arr.filter(function(x){return x.bf!=null;});
+  if(W.length<2 && F.length<2){
+    box.innerHTML='<div class="bchart-empty">記滿兩筆以上就會畫出趨勢線<br>先持續記幾天吧</div>';
+    return;
+  }
+  // chronological
+  var all=arr.slice().reverse();
+  var wpts=[], fpts=[];
+  for(var i=0;i<all.length;i++){
+    if(all[i].w!=null) wpts.push({ds:all[i].ds,v:all[i].w});
+    if(all[i].bf!=null) fpts.push({ds:all[i].ds,v:all[i].bf});
+  }
+  var VB_W=300, VB_H=140, padL=8, padR=8, padT=14, padB=22;
+  var plotW=VB_W-padL-padR, plotH=VB_H-padT-padB;
+
+  // shared x index across union of dates that have any reading
+  var dates=[];
+  for(var d=0;d<all.length;d++){ if(all[d].w!=null||all[d].bf!=null) dates.push(all[d].ds); }
+  var xN=dates.length;
+  function xAt(ds){ var idx=dates.indexOf(ds); return xN>1? padL+idx/(xN-1)*plotW : padL+plotW/2; }
+
+  function lineFor(pts,color,minV,maxV){
+    if(pts.length===0) return '';
+    var span=(maxV-minV)||1;
+    function yAt(v){ return padT+(1-(v-minV)/span)*plotH; }
+    var dd='';
+    for(var i=0;i<pts.length;i++){
+      dd+=(i===0?'M':'L')+xAt(pts[i].ds).toFixed(1)+' '+yAt(pts[i].v).toFixed(1)+' ';
+    }
+    var dots='';
+    for(var j=0;j<pts.length;j++){
+      dots+='<circle cx="'+xAt(pts[j].ds).toFixed(1)+'" cy="'+yAt(pts[j].v).toFixed(1)+'" r="2.6" fill="'+color+'"/>';
+    }
+    return '<path d="'+dd.trim()+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+dots;
+  }
+
+  function rng(pts){
+    var mn=Infinity,mx=-Infinity;
+    for(var i=0;i<pts.length;i++){ if(pts[i].v<mn)mn=pts[i].v; if(pts[i].v>mx)mx=pts[i].v; }
+    if(mn===mx){ mn-=1; mx+=1; } else { var pad=(mx-mn)*0.15; mn-=pad; mx+=pad; }
+    return [mn,mx];
+  }
+
+  var svg='<svg viewBox="0 0 '+VB_W+' '+VB_H+'" width="100%" style="display:block">';
+  // x labels: first, middle-ish, last
+  var lblIdx=[0];
+  if(xN>2) lblIdx.push(Math.floor((xN-1)/2));
+  if(xN>1) lblIdx.push(xN-1);
+  for(var L=0;L<lblIdx.length;L++){
+    var ds=dates[lblIdx[L]];
+    svg+='<text x="'+xAt(ds).toFixed(1)+'" y="'+(VB_H-6)+'" font-size="9" fill="#BCAFC2" text-anchor="middle">'+md(ds)+'</text>';
+  }
+  if(wpts.length){ var wr=rng(wpts); svg+=lineFor(wpts,'#8E5AB8',wr[0],wr[1]); }
+  if(fpts.length){ var fr=rng(fpts); svg+=lineFor(fpts,'#D96BA0',fr[0],fr[1]); }
+  svg+='</svg>';
+
+  // endpoints summary
+  var summ='';
+  if(wpts.length>=2){ var w0=wpts[0].v,w1=wpts[wpts.length-1].v,dw=(w1-w0);
+    summ+='<span style="color:#8E5AB8;font-weight:700">體重 '+w0.toFixed(1)+' → '+w1.toFixed(1)+'</span> ('+(dw>0?'+':'')+dw.toFixed(1)+'kg)　'; }
+  if(fpts.length>=2){ var f0=fpts[0].v,f1=fpts[fpts.length-1].v,df=(f1-f0);
+    summ+='<span style="color:#D96BA0;font-weight:700">體脂 '+f0.toFixed(1)+' → '+f1.toFixed(1)+'</span> ('+(df>0?'+':'')+df.toFixed(1)+'%)'; }
+  box.innerHTML=svg+(summ?'<div style="font-size:11.5px;color:var(--dim);text-align:center;margin-top:8px;line-height:1.7">'+summ+'</div>':'');
+}
+
 function renderProg(){
   var days=last7(), max=1;
   for(var i=0;i<days.length;i++){
@@ -824,6 +918,8 @@ function renderProg(){
     }
     box.innerHTML=o;
   }
+
+  renderBodyChart();
 
   var latest=arr.length?arr[0]:null;
   var gs=[
@@ -881,18 +977,22 @@ document.getElementById('setBtn').addEventListener('click',function(){
     if(!isNaN(n)&&n>0) GOALS[keys[i]]=Math.round(n);
   }
   try{localStorage.setItem(KEY+'.goals',JSON.stringify(GOALS));}catch(e){}
+  refreshGoalLabels();
+  render();
+});
+
+function refreshGoalLabels(){
   document.getElementById('gK').textContent=GOALS.kcal;
   document.getElementById('gP').textContent=GOALS.p;
   document.getElementById('gC').textContent=GOALS.c;
   document.getElementById('gF').textContent=GOALS.f;
   document.getElementById('gFi').textContent=GOALS.fi;
-  render();
-});
-
+}
 try{
   var sg=localStorage.getItem(KEY+'.goals');
-  if(sg){var g=JSON.parse(sg);for(var gk in GOALS) if(g[gk]) GOALS[gk]=g[gk];}
+  if(sg){var g=JSON.parse(sg);for(var gk in GOALS){ if(typeof g[gk]==='number' && g[gk]>0) GOALS[gk]=g[gk]; }}
 }catch(e){}
+refreshGoalLabels();
 
 function addMeal(){
   var inp=document.getElementById('mIn');
@@ -929,7 +1029,7 @@ document.getElementById('exAdd').addEventListener('click',function(){
   if(isNaN(kc)||kc<=0){
     var met=4.5;
     for(var i=0;i<EXS.length;i++) if(EXS[i].n===exKind) met=EXS[i].r;
-    kc=Math.round(met*WT*(mn/60));
+    kc=Math.round(met*curWeight()*(mn/60));
   }
   day(cur).e.push({kind:kind,note:note,min:mn,kcal:kc,ts:Date.now()});
   save();
@@ -1054,11 +1154,7 @@ document.getElementById('impBtn').addEventListener('click',function(){
   if(o.goals){
     for(var g in GOALS) if(o.goals[g]) GOALS[g]=o.goals[g];
     try{localStorage.setItem(KEY+'.goals',JSON.stringify(GOALS));}catch(e){}
-    document.getElementById('gK').textContent=GOALS.kcal;
-    document.getElementById('gP').textContent=GOALS.p;
-    document.getElementById('gC').textContent=GOALS.c;
-    document.getElementById('gF').textContent=GOALS.f;
-    document.getElementById('gFi').textContent=GOALS.fi;
+    refreshGoalLabels();
   }
   document.getElementById('impBox').value='';
   render();
