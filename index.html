@@ -6,25 +6,25 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="莓好食光">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#F7F1F5">
+<meta name="theme-color" content="#FBF3E6">
 <title>莓好食光</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#F7F1F5;
-  --card:#FFFFFF;
-  --line:#EBE1EC;
-  --line2:#F1EAF1;
-  --ink:#2E2530;
-  --dim:#9A8CA0;
-  --faint:#BCAFC2;
-  --green:#8E5AB8;
-  --green-d:#6F429A;
-  --green-l:#EFE6F7;
-  --kcal:#D96BA0;
-  --kcal-l:#F9E4EF;
+  --bg:#FBF3E6;
+  --card:#FFFDF9;
+  --line:#EFE3D2;
+  --line2:#F5ECDD;
+  --ink:#5A2E2C;
+  --dim:#A88A80;
+  --faint:#C7B3A6;
+  --green:#C56E82;
+  --green-d:#A85567;
+  --green-l:#F7E6E9;
+  --kcal:#D98895;
+  --kcal-l:#FBEAEC;
   --p:#2E9E7B;
   --p-l:#DBF1E8;
   --c:#4E82C4;
@@ -35,10 +35,10 @@
   --fi-l:#EAE1F6;
   --water:#3EA0CC;
   --water-l:#DAEEF6;
-  --warn-bg:#F3EBF9;
-  --warn-line:#DEC9F0;
-  --warn-ink:#6F449B;
-  --shadow:0 1px 2px rgba(70,40,80,.04), 0 4px 16px rgba(90,50,110,.06);
+  --warn-bg:#F9EBE4;
+  --warn-line:#EACDBE;
+  --warn-ink:#9A4A3E;
+  --shadow:0 1px 2px rgba(90,46,44,.04), 0 4px 16px rgba(120,70,55,.07);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
@@ -81,7 +81,7 @@ nav button{
   color:var(--dim);cursor:pointer;font-weight:500;border-radius:10px;
   transition:background .18s ease,color .18s ease;
 }
-nav button.on{background:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(142,90,184,.30)}
+nav button.on{background:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(197,110,130,.32)}
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:17px;margin-bottom:13px;box-shadow:var(--shadow)}
 .card h3{font-size:11.5px;color:var(--faint);margin:0 0 13px;font-weight:700;letter-spacing:.12em;text-transform:none}
@@ -156,7 +156,7 @@ nav button.on{background:var(--green);color:#fff;font-weight:700;box-shadow:0 2p
 /* meal type chips */
 .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
 .chip{background:var(--bg);border:1px solid transparent;border-radius:99px;padding:8px 16px;font-size:13.5px;cursor:pointer;font-family:inherit;color:var(--dim);transition:all .15s ease}
-.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 7px rgba(142,90,184,.28)}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:700;box-shadow:0 2px 7px rgba(197,110,130,.30)}
 .chip.ex.on{background:var(--green);border-color:var(--green)}
 
 /* input */
@@ -430,8 +430,8 @@ footer{text-align:center;font-size:11px;color:#BFAE92;padding:18px 0 10px;line-h
     <h3>體重體脂趨勢</h3>
     <div id="bChart"></div>
     <div class="clegend">
-      <span><i style="background:var(--green)"></i>體重 kg</span>
-      <span><i style="background:var(--kcal)"></i>體脂 %</span>
+      <span><i style="background:#8B4A3E"></i>體重 kg</span>
+      <span><i style="background:#D07A8C"></i>體脂 %</span>
     </div>
   </div>
   <div class="card">
@@ -860,18 +860,18 @@ function renderBodyChart(){
   if(xN>1) lblIdx.push(xN-1);
   for(var L=0;L<lblIdx.length;L++){
     var ds=dates[lblIdx[L]];
-    svg+='<text x="'+xAt(ds).toFixed(1)+'" y="'+(VB_H-6)+'" font-size="9" fill="#BCAFC2" text-anchor="middle">'+md(ds)+'</text>';
+    svg+='<text x="'+xAt(ds).toFixed(1)+'" y="'+(VB_H-6)+'" font-size="9" fill="#C7B3A6" text-anchor="middle">'+md(ds)+'</text>';
   }
-  if(wpts.length){ var wr=rng(wpts); svg+=lineFor(wpts,'#8E5AB8',wr[0],wr[1]); }
-  if(fpts.length){ var fr=rng(fpts); svg+=lineFor(fpts,'#D96BA0',fr[0],fr[1]); }
+  if(wpts.length){ var wr=rng(wpts); svg+=lineFor(wpts,'#8B4A3E',wr[0],wr[1]); }
+  if(fpts.length){ var fr=rng(fpts); svg+=lineFor(fpts,'#D07A8C',fr[0],fr[1]); }
   svg+='</svg>';
 
   // endpoints summary
   var summ='';
   if(wpts.length>=2){ var w0=wpts[0].v,w1=wpts[wpts.length-1].v,dw=(w1-w0);
-    summ+='<span style="color:#8E5AB8;font-weight:700">體重 '+w0.toFixed(1)+' → '+w1.toFixed(1)+'</span> ('+(dw>0?'+':'')+dw.toFixed(1)+'kg)　'; }
+    summ+='<span style="color:#8B4A3E;font-weight:700">體重 '+w0.toFixed(1)+' → '+w1.toFixed(1)+'</span> ('+(dw>0?'+':'')+dw.toFixed(1)+'kg)　'; }
   if(fpts.length>=2){ var f0=fpts[0].v,f1=fpts[fpts.length-1].v,df=(f1-f0);
-    summ+='<span style="color:#D96BA0;font-weight:700">體脂 '+f0.toFixed(1)+' → '+f1.toFixed(1)+'</span> ('+(df>0?'+':'')+df.toFixed(1)+'%)'; }
+    summ+='<span style="color:#D07A8C;font-weight:700">體脂 '+f0.toFixed(1)+' → '+f1.toFixed(1)+'</span> ('+(df>0?'+':'')+df.toFixed(1)+'%)'; }
   box.innerHTML=svg+(summ?'<div style="font-size:11.5px;color:var(--dim);text-align:center;margin-top:8px;line-height:1.7">'+summ+'</div>':'');
 }
 
